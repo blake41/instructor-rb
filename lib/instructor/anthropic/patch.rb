@@ -24,7 +24,7 @@ module Instructor
           parameters[:max_tokens] = 1024 unless parameters.key?(:max_tokens)
           parameters = prepare_parameters(parameters, validation_context, function)
           ::Anthropic.configuration.extra_headers = { 'anthropic-beta' => 'tools-2024-04-04' }
-          response = ::Anthropic::Client.json_post(path: '/messages', parameters:)
+          response = json_post(path: '/messages', parameters:)
           process_response(response, model)
         end
       end
