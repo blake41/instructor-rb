@@ -2,7 +2,8 @@
 
 require 'anthropic'
 require 'instructor/base/patch'
-
+require 'pry'
+require 'pry-byebug'
 # The Instructor module provides functionality for interacting with Anthropic's messages API.
 module Instructor
   module Anthropic
@@ -23,10 +24,22 @@ module Instructor
           function = build_function(model)
           parameters[:max_tokens] = 1024 unless parameters.key?(:max_tokens)
           parameters = prepare_parameters(parameters, validation_context, function)
-          ::Anthropic.configuration.extra_headers = { 'anthropic-beta' => 'tools-2024-04-04' }
-          response = ::Anthropic::Client.json_post(path: '/messages', parameters:)
+          # ::Anthropic.configuration.extra_headers = { 'anthropic-beta' => 'tools-2024-04-04' }
+          parameters.merge!(build_tool_choice(function))
+          binding.pry
+          response = json_post(path: '/messages', parameters:)
+          binding.pry
           process_response(response, model)
         end
+      end
+
+      def build_tool_choice(function)
+        {
+          "tool_choice": {
+            type: 'tool',
+            name: function[:name]
+          }
+        }
       end
 
       # Processes the API response.
